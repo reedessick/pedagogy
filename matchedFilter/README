@@ -1,0 +1,5 @@
+this is a basic module meant to demonstrate (pedagogically) how matched filtering works
+
+We inject a known waveform into white gaussian noise and demonstrate the convolution explicitly.
+This gives the explicit SNR(t) which we can demonstrate detection clearly.
+
