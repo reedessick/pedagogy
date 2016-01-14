@@ -28,18 +28,19 @@ parser.add_option('-s', '--sampling-rate', default=1024, type='int', help='sampl
 
 parser.add_option('-S', '--SNR', default=15.0, type='float', help='requested SNR for the injection')
 
-parser.add_option('', '--theta', default=30, type='float', help='the polar angle for triangulation. WARNING: the plot shows "theta" but that is measured from the zenith!')
+parser.add_option('', '--theta', default=45, type='float', help='the polar angle for triangulation. WARNING: the plot shows "theta" but that is measured from the zenith!')
 parser.add_option('', '--D-over-c', default=3, type='float', help='the triangulation baseline')
 
 parser.add_option('-f', '--freq', default=10.0, type='float', help='central frequency of the chirpedSineGaussian')
 parser.add_option('-F', '--freqDot', default=20, type='float', help='frequency derivative of the chirpedSineGaussian')
-parser.add_option('-t', '--tau', default=0.5, type='float', help='time constnat of the chirpedSineGaussian')
+parser.add_option('-t', '--tau', default=0.25, type='float', help='time constnat of the chirpedSineGaussian')
 
 parser.add_option('', '--frames-per-sec', default=30, type='int', help='the number of frames per second of the movie')
 parser.add_option('', '--num-frames', default=200, type='int', help='the total number of frames in the movie')
 
 parser.add_option('', '--hide-signal', default=False, action='store_true', help='do not show signal in fame*png figures')
 parser.add_option('', '--tag', default='', type='string' )
+parser.add_option('', '--dpi', default=200, type='int' )
 
 parser.add_option('', '--sanity-check', default=False, action='store_true', help='stop after making sanity check plots')
 
@@ -218,6 +219,7 @@ ax = ax.twiny()
 thetas = [-90, -45, -30, -15, 0, 15, 30, 45, 90]
 ax.set_xticks([opts.D_over_c*np.sin(theta*np.pi/180) for theta in thetas])
 ax.set_xticklabels(["$%d^\circ$"%theta for theta in thetas])
+ax.set_xlim(xmin=0, xmax=opts.D_over_c)
 
 ax.xaxis.tick_top()
 ax.xaxis.set_label_position('top')
@@ -228,7 +230,7 @@ plt.subplots_adjust(hspace=0.1, wspace=0.1)
 figname = "sanityCheck%s.png"%(opts.tag)
 if opts.verbose:
     print "    %s"%figname
-fig.savefig( figname )
+fig.savefig( figname, dpi=opts.dpi )
 plt.close( fig )
 
 if opts.sanity_check:
@@ -336,6 +338,7 @@ ax = ax.twiny()
 thetas = [-90, -45, -30, -15, 0, 15, 30, 45, 90]
 ax.set_xticks([opts.D_over_c*np.sin(theta*np.pi/180) for theta in thetas])
 ax.set_xticklabels(["$%d^\circ$"%theta for theta in thetas])
+ax.set_xlim(xmin=0, xmax=opts.D_over_c)
 
 ax.xaxis.tick_top()
 ax.xaxis.set_label_position('top')
@@ -346,7 +349,7 @@ plt.subplots_adjust(hspace=0.1, wspace=0.1)
 figname = "frame%s-%04d.png"%(opts.tag, frameNo)
 if opts.verbose:
     print "    %s"%figname
-fig.savefig( figname )
+fig.savefig( figname, dpi=opts.dpi )
 plt.close(fig)
 
 frameNo += 1
@@ -459,6 +462,7 @@ while ind < N:
     thetas = [-90, -45, -30, -15, 0, 15, 30, 45, 90]
     ax.set_xticks([opts.D_over_c*np.sin(theta*np.pi/180) for theta in thetas])
     ax.set_xticklabels(["$%d^\circ$"%theta for theta in thetas])
+    ax.set_xlim(xmin=0, xmax=opts.D_over_c)
 
     ax.xaxis.tick_top()
     ax.xaxis.set_label_position('top')
@@ -469,7 +473,7 @@ while ind < N:
     figname = "frame%s-%04d.png"%(opts.tag, frameNo)
     if opts.verbose:
         print "    %s"%figname
-    fig.savefig( figname )
+    fig.savefig( figname, dpi=opts.dpi )
     plt.close(fig)
 
     frameNo += 1
@@ -580,6 +584,7 @@ ax = ax.twiny()
 thetas = [-90, -45, -30, -15, 0, 15, 30, 45, 90]
 ax.set_xticks([opts.D_over_c*np.sin(theta*np.pi/180) for theta in thetas])
 ax.set_xticklabels(["$%d^\circ$"%theta for theta in thetas])
+ax.set_xlim(xmin=0, xmax=opts.D_over_c)
 
 ax.xaxis.tick_top()
 ax.xaxis.set_label_position('top')
@@ -590,7 +595,7 @@ plt.subplots_adjust(hspace=0.1, wspace=0.1)
 figname = "frame%s-%04d.png"%(opts.tag, frameNo)
 if opts.verbose:
     print "    %s"%figname
-fig.savefig( figname )
+fig.savefig( figname, dpi=opts.dpi )
 plt.close(fig)
 
 #-------------------------------------------------

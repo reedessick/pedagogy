@@ -37,6 +37,7 @@ parser.add_option('', '--num-frames', default=300, type='int', help='the total n
 
 parser.add_option('', '--hide-signal', default=False, action='store_true', help='do not show signal in fame*png figures')
 parser.add_option('', '--tag', default='', type='string' )
+parser.add_option('', '--dpi', default=200, type='int' )
 
 parser.add_option('', '--sanity-check', default=False, action='store_true', help='stop after making sanity check plots')
 
@@ -158,7 +159,7 @@ plt.subplots_adjust(hspace=0.05, wspace=0.05)
 figname = "sanityCheck%s.png"%(opts.tag)
 if opts.verbose:
     print "    %s"%figname
-fig.savefig( figname )
+fig.savefig( figname, dpi=opts.dpi )
 plt.close(fig)
 
 #-------------------------------------------------
@@ -208,7 +209,7 @@ plt.subplots_adjust(hspace=0.05, wspace=0.05)
 figname = "sanityCheckSNR%s.png"%(opts.tag)
 if opts.verbose:
     print "    %s"%figname
-fig.savefig( figname )
+fig.savefig( figname, dpi=opts.dpi )
 plt.close(fig)
 
 #-------------------------------------------------
@@ -254,7 +255,7 @@ plt.subplots_adjust(hspace=0.05, wspace=0.05)
 figname = "frame%s-%04d.png"%(opts.tag, frameNo)
 if opts.verbose:
     print "    %s"%figname
-fig.savefig( figname )
+fig.savefig( figname, dpi=opts.dpi )
 plt.close( fig )
 
 frameNo += 1
@@ -298,7 +299,7 @@ while ind < N:
     figname = "frame%s-%04d.png"%(opts.tag, frameNo)
     if opts.verbose:
         print "    %s"%figname
-    fig.savefig( figname )
+    fig.savefig( figname, dpi=opts.dpi )
     plt.close( fig )
 
     frameNo += 1
@@ -341,7 +342,7 @@ plt.subplots_adjust(hspace=0.05, wspace=0.05)
 figname = "frame%s-%04d.png"%(opts.tag, frameNo)
 if opts.verbose:
     print "    %s"%figname
-fig.savefig( figname )
+fig.savefig( figname, dpi=opts.dpi )
 plt.close( fig )
 
 #-------------------------------------------------
