@@ -99,6 +99,8 @@ dataT2 = wTimeDom2 + hTimeDom2
 snr = np.fft.ifft( 2 * np.fft.ifftshift( dataF1 * np.conj(dataF2) ) ).real * opts.sampling_rate ### ifft normalizes the sum by 1/n = 1/(s*T) and we want to normalize by 1/T to approximate the integral
 SNR = snr**0.5
 
+print "WARNING: may want to include \"diagonal\" compenents of the likelihood or to normalize it to a posterior"
+
 #-------------------------------------------------
 
 if opts.verbose:
@@ -192,7 +194,11 @@ ax.set_ylim(ylim)
 ### ray-plot
 ax = plt.subplot(3,3,6)
 
-ax.plot( times, SNR, 'g-', linewidth=1, alpha=0.5, label='$\mathrm{freq-domain}$\n$\mathrm{computation}$' )
+truth = times<=opts.D_over_c
+ax.plot( times[truth], SNR[truth], 'g-', linewidth=1, alpha=0.5, label='$\mathrm{freq-domain}$\n$\mathrm{computation}$' )
+
+truth = times[-1]-times <= opts.D_over_c
+ax.plot( times[truth]-times[-1], SNR[truth], 'g-', linewidth=1, alpha=0.5, label='$\mathrm{freq-domain}$\n$\mathrm{computation}$' )
 
 ylim = ax.get_ylim()
 ax.plot( [dt]*2, ylim, 'k--', linewidth=1, alpha=0.5 )
@@ -204,6 +210,17 @@ ax.yaxis.tick_right()
 ax.yaxis.set_label_position('right')
 ax.set_ylabel('$\\rho(\\tau)$')
 
+ax.set_xlim(xmin=-opts.D_over_c, xmax=opts.D_over_c)
+
+ax = ax.twiny()
+thetas = [-90, -45, -30, -15, 0, 15, 30, 45, 90]
+ax.set_xticks([opts.D_over_c*np.sin(theta*np.pi/180) for theta in thetas])
+ax.set_xticklabels(["$%d^\circ$"%theta for theta in thetas])
+
+ax.xaxis.tick_top()
+ax.xaxis.set_label_position('top')
+ax.set_xlabel('$\\theta$')
+
 plt.subplots_adjust(hspace=0.05, wspace=0.05)
 
 figname = "sanityCheck%s.png"%(opts.tag)
@@ -211,171 +228,6 @@ if opts.verbose:
     print "    %s"%figname
 fig.savefig( figname )
 plt.close( fig )
-
-if opts.sanity_check:
-    import sys
-    sys.exit(0)
-
-#-------------------------------------------------
-
-
-raise StandardError("WRITE ME")
-
-'''
-Need to figure out time-shifts based on number of frames
-    step through, slide data, bob's your uncle
-    we then build the "sanity check" figure iteratively so it is stepped through in time
-'''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if opts.verbose:
-    print "computing SNR(t)"
-data  = hFreqDom + wFreqDom
-#dataT = hFreqDom + wFreqDomT
-
-### set up template
-tFreqDom = waveforms.chirpSineGaussianF( freqs, 1.0, opts.freq, opts.freqDot, opts.tau, 0 ) ### template with to=0
-tFreqDom /= ( 2 * np.sum( tFreqDom.real**2 + tFreqDom.imag**2 ) / opts.duration )**0.5 ### normalize the template
-
-### compute snr(t)
-snr  = np.fft.ifft( 2 * np.fft.ifftshift( data * np.conj(tFreqDom) ) ) * opts.sampling_rate ### normalization...
-SNR = np.abs(snr)
-
-#snrT = np.fft.ifft( 2 * np.fft.ifftshift( dataT * np.conj(tFreqDom) ) ) * opts.sampling_rate
-#SNRT = np.abs(snrT)
-
-# if opts.verbose:
-#     print "computing SNR(t) the hard way (in time domain)"
-#
-# tdata = hTimeDom + wTimeDom
-# tdataT = hTimeDom + wTimeDomT
-#
-# tsnr = np.empty_like( tdata )
-# tsnrT = np.empty_like( tdataT )
-#
-# ### iterate and compute convolution by hand
-# for ind, t in enumerate(times):
-#     template = waveforms.chirpSineGaussianT( times, 1.0, opts.freq, opts.freqDot, opts.tau, t ) ### template with to=t
-#     template /= ( np.sum( template**2 ) / opts.sampling_rate )**0.5 ### normalize template
-# 
-#     tsnr[ind]  = np.abs( np.sum( template*tdata ) / opts.sampling_rate )
-#     tsnrT[ind] = np.abs( np.sum( template*tdataT ) / opts.sampling_rate )
-
-#-------------------------------------------------
-
-if opts.verbose:
-    print "plotting sanity check of injection and noise in Time and Freq Domains"
-
-### time domain
-
-fig = plt.figure(figsize=(10,5))
-ax = plt.subplot(1,2,1)
-
-ax.plot( times, wTimeDom+hTimeDom,  'r-', linewidth=1, alpha=0.5, label='$\mathrm{noise+signal}$' )
-#ax.plot( times, wTimeDomT+hTimeDom, 'b-', linewidth=1, alpha=0.5, label='$\mathrm{noiseT+signal}$' )
-
-ax.plot( times, hTimeDom, 'k-', linewidth=2, alpha=0.75, label='$\mathrm{signal}$' )
-
-ax.set_xlabel('$\mathrm{time}$')
-ax.set_ylabel('$h(t)$')
-ax.legend(loc='best')
-
-ax.set_xlim(xmin=0, xmax=opts.duration)
-
-### freq domain
-
-ax = plt.subplot(1,2,2)
-
-ax.plot( freqs, (wFreqDom.real+hFreqDom.real)**2 + (wFreqDom.imag+hFreqDom.imag)**2,  'r-', linewidth=1, alpha=0.5, label='$\mathrm{noise+signal}$' )
-#ax.plot( freqs, (wFreqDomT.real+hFreqDom.real)**2 + (wFreqDomT.imag+hFreqDom.imag)**2, 'b-', linewidth=1, alpha=0.5, label='$\mathrm{noiseT+signal}$' )
-
-ax.plot( freqs, hFreqDom.real**2 + hFreqDom.imag**2, 'k-', linewidth=2, alpha=0.75, label='$\mathrm{signal}$' )
-
-ax.set_xlabel('$\mathrm{freq}$')
-ax.set_ylabel('$\\tilde{h}(f)$')
-ax.legend(loc='best')
-
-ax.set_xlim(xmin=0, xmax=opts.sampling_rate/2)
-
-ax.yaxis.tick_right()
-ax.yaxis.set_label_position('right')
-
-plt.subplots_adjust(hspace=0.05, wspace=0.05)
-
-figname = "sanityCheck%s.png"%(opts.tag)
-if opts.verbose:
-    print "    %s"%figname
-fig.savefig( figname )
-plt.close(fig)
-
-#-------------------------------------------------
-
-if opts.verbose:
-    print "plotting sanity check of SNR(t)"
-
-fig = plt.figure(figsize=(5,10))
-
-### noise generated in freq-domain
-ax = plt.subplot(2,1,1)
-
-ax.plot( times, hTimeDom + wTimeDom, 'r-', linewidth=1, alpha=0.5, label='$\mathrm{noise+signal}$' )
-#ax.plot( times, hTimeDom + wTimeDomT, 'b-', linewidth=1, alpha=0.5, label='$\mathrm{noiseT+signal}$' )
-
-ax.plot( times, hTimeDom, 'k-', linewidth=1, alpha=0.75, label='$\mathrm{signal}$' )
-
-ax.legend(loc='best')
-ax.set_xlabel('$\mathrm{time}$')
-ax.xaxis.tick_top()
-ax.xaxis.set_label_position('top')
-ax.set_ylabel('$h(t)$')
-
-ax.set_xlim(xmin=0, xmax=opts.duration)
-
-### noise generated in time-domain
-ax = plt.subplot(2,1,2)
-
-ax.plot( times, SNR,  'r-', linewidth=1, alpha=0.5, label='$\mathrm{freq-domain}$\n$\mathrm{computation}$' )
-#ax.plot( times, SNRT, 'b-', linewidth=1, alpha=0.5, label='$\mathrm{freq-domain}$\n$\mathrm{computation}$' )
-
-#ax.plot( times, tsnr,  'm-', linewidth=1, alpha=0.5, label='$\mathrm{time-domain}$\n$\mathrm{computation}$' )
-#ax.plot( times, tsnrT, 'c-', linewidth=1, alpha=0.5, label='$\mathrm{time-domain}$\n$\mathrm{computation}$' )
-
-ax.legend(loc='best')
-ax.set_xlabel('$\mathrm{time}$')
-ax.set_ylabel('$\\rho(t)$')
-
-ax.set_xlim(xmin=0, xmax=opts.duration)
-
-ylim = ax.get_ylim()
-ax.plot([to]*2, ylim, 'k--', alpha=0.5 )
-ax.set_ylim(ylim)
-
-plt.subplots_adjust(hspace=0.05, wspace=0.05)
-
-figname = "sanityCheckSNR%s.png"%(opts.tag)
-if opts.verbose:
-    print "    %s"%figname
-fig.savefig( figname )
-plt.close(fig)
-
-#-------------------------------------------------
 
 if opts.sanity_check:
     import sys
@@ -389,128 +241,53 @@ if opts.verbose:
 N = opts.duration*opts.sampling_rate
 frame_step = int( 1.0*N / opts.num_frames )
 
+print "WARNING: may want to restrict the range of the timeslides to that which is causal..."
+
 frameNo = 0
 
-fig = plt.figure(figsize=(5,10))
-ax = plt.subplot(2,1,1)
+### plot an openning frame
+fig = plt.figure()
 
-ax.plot( times, hTimeDom + wTimeDom, 'r-', linewidth=1, alpha=0.5, label='$\mathrm{noise+signal}$' )
-if not opts.hide_signal:
-    ax.plot( times,  hTimeDom, 'b-', linewidth=1, alpha=0.5, label='$\mathrm{signal}$' )
-
-ax.set_xlabel('$\mathrm{time}$')
-ax.xaxis.tick_top()
-ax.xaxis.set_label_position('top')
-ax.set_ylabel('$h(t)$')
-
-ax.set_xlim(xmin=0, xmax=opts.duration)
-
-ax = plt.subplot(2,1,2)
-
-ax.set_xlabel('$\mathrm{time}$')
-ax.set_ylabel('$\\rho(t)$')
-
-ax.set_xlim(xmin=0, xmax=opts.duration)
-ax.set_ylim(ymin=0, ymax=1.1*np.max(SNR))
-
-plt.subplots_adjust(hspace=0.05, wspace=0.05)
+raise StandardError("WRITE ME")
 
 figname = "frame%s-%04d.png"%(opts.tag, frameNo)
 if opts.verbose:
     print "    %s"%figname
 fig.savefig( figname )
-plt.close( fig )
+plt.close(fig)
 
 frameNo += 1
 
+### plot the rest of the frames
 ind = 0
 while ind < N:
-    fig = plt.figure(figsize=(5,10))
-    ax = plt.subplot(2,1,1)
+    fig = plt.figure()
 
-    ax.plot( times, hTimeDom + wTimeDom, 'r-', linewidth=1, alpha=0.5, label='$\mathrm{noise+signal}$' )
-    if not opts.hide_signal:
-        ax.plot( times,  hTimeDom, 'b-', linewidth=1, alpha=0.5, label='$\mathrm{signal}$' )
-
-    template = waveforms.chirpSineGaussianT( times, 1.0, opts.freq, opts.freqDot, opts.tau, times[ind] ) ### template with to=t
-    template /= ( np.sum( template**2 ) / opts.sampling_rate )**0.5 ### normalize template
-
-    ax.plot( times, template, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{template}$')
-
-    ylim = ax.get_ylim()
-    ax.arrow( times[ind], 40, 0, -20, head_width=0.1, head_length=5.0, fc='k', ec='k' )
-
-    ax.set_xlabel('$\mathrm{time}$')
-    ax.xaxis.tick_top()
-    ax.xaxis.set_label_position('top')
-    ax.set_ylabel('$h(t)$')
-
-    ax.set_xlim(xmin=0, xmax=opts.duration)
-
-    ax = plt.subplot(2,1,2)
-
-    ax.plot( times[:ind], SNR[:ind], 'k-', linewidth=1, alpha=0.5, label='$\mathrm{time-domain}$\n$\mathrm{computation}$' )
-    
-    ax.set_xlabel('$\mathrm{time}$')
-    ax.set_ylabel('$\\rho(t)$')
-
-    ax.set_xlim(xmin=0, xmax=opts.duration)
-    ax.set_ylim(ymin=0, ymax=1.1*np.max(SNR))
-
-    plt.subplots_adjust(hspace=0.05, wspace=0.05)
+    raise StandardError("WRITE ME")
 
     figname = "frame%s-%04d.png"%(opts.tag, frameNo)
     if opts.verbose:
         print "    %s"%figname
     fig.savefig( figname )
-    plt.close( fig )
+    plt.close(fig)
 
     frameNo += 1
     ind += frame_step
-    
-fig = plt.figure(figsize=(5,10))
-ax = plt.subplot(2,1,1)
 
-ax.plot( times, hTimeDom + wTimeDom, 'r-', linewidth=1, alpha=0.5, label='$\mathrm{noise+signal}$' )
-if not opts.hide_signal:
-    ax.plot( times,  hTimeDom, 'b-', linewidth=1, alpha=0.5, label='$\mathrm{signal}$' )
+### plot the final frame
+fig = plt.figure()
 
-template = waveforms.chirpSineGaussianT( times, 1.0, opts.freq, opts.freqDot, opts.tau, times[-1] ) ### template with to=t
-template /= ( np.sum( template**2 ) / opts.sampling_rate )**0.5 ### normalize template
-
-ax.plot( times, template, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{template}$')
-
-ylim = ax.get_ylim()
-ax.arrow( times[-1], 40, 0, -20, head_width=0.1, head_length=5.0, fc='k', ec='k' )
-
-ax.set_xlabel('$\mathrm{time}$')
-ax.xaxis.tick_top()
-ax.xaxis.set_label_position('top')
-ax.set_ylabel('$h(t)$')
-
-ax.set_xlim(xmin=0, xmax=opts.duration)
-
-ax = plt.subplot(2,1,2)
-
-ax.plot( times, SNR, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{time-domain}$\n$\mathrm{computation}$' )
-
-ax.set_xlabel('$\mathrm{time}$')
-ax.set_ylabel('$\\rho(t)$')
-
-ax.set_xlim(xmin=0, xmax=opts.duration)
-ax.set_ylim(ymin=0, ymax=1.1*np.max(SNR))
-
-plt.subplots_adjust(hspace=0.05, wspace=0.05)
+raise StandardError("WRITE ME")
 
 figname = "frame%s-%04d.png"%(opts.tag, frameNo)
 if opts.verbose:
     print "    %s"%figname
 fig.savefig( figname )
-plt.close( fig )
+plt.close(fig)
 
 #-------------------------------------------------
 
-cmd = "ffmpeg -r %d -i frame%s-%s04d.png matchedFilter%s.mp4"%(opts.frames_per_sec, opts.tag, "%", opts.tag)
+cmd = "ffmpeg -r %d -i frame%s-%s04d.png coherentLiklihood%s.mp4"%(opts.frames_per_sec, opts.tag, "%", opts.tag)
 if opts.verbose:
     print "wrapping into a movie:\n\t%s"%(cmd)
 
