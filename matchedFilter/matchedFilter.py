@@ -3,7 +3,6 @@ usage = "matchedFilter.py [--options]"
 description = "builds figures to demonstrate matched filtering"
 author = "Reed Essick (reed.essick@ligo.org)"
 
-
 #-------------------------------------------------
 
 import waveforms
