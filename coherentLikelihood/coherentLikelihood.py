@@ -274,6 +274,8 @@ ax = plt.subplot(2,3,2)
 
 ax.plot( times, 0.5*(dataT1 + dataT2), 'm-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_1}$')
 ax.plot( times, 0.5*(hTimeDom1 + hTimeDom2), 'b-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_1}$')
+if not opts.hide_signal:
+    ax.plot( times, hTimeDom1, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_1}$' )
 
 ax.set_ylim(ylim)
 
@@ -309,6 +311,8 @@ ax = plt.subplot(2,3,5)
 
 ax.plot( times, 0.5*(dataT1 + dataT2), 'c-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_2}$')
 ax.plot( times, 0.5*(hTimeDom1 + hTimeDom2), 'r-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_2}$')
+if not opts.hide_signal:
+    ax.plot( times, hTimeDom2, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_2}$' )
 
 ax.set_ylim(ylim)
 
@@ -388,6 +392,8 @@ while ind < N:
 
     ax.plot( times[ind:], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom1)-ind]), 'm-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_1}$')
     ax.plot( times[ind:], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom1)-ind]), 'b-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_1}$')
+    if not opts.hide_signal:
+        ax.plot( times, hTimeDom1, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_1}$' )
 
     ax.set_ylim(ylim)
 
@@ -426,6 +432,8 @@ while ind < N:
 
     ax.plot( times[:len(hTimeDom2)-ind], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom2)-ind]), 'c-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_2}$')
     ax.plot( times[:len(hTimeDom2)-ind], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom2)-ind]), 'r-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_2}$')
+    if not opts.hide_signal:
+        ax.plot( times, hTimeDom2, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_2}$' )
 
     ax.set_ylim(ylim)
 
@@ -511,6 +519,8 @@ ax = plt.subplot(2,3,2)
 
 ax.plot( times[ind:], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom2)-ind]), 'm-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_1}$')
 ax.plot( times[ind:], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom2)-ind]), 'b-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_1}$')
+if not opts.hide_signal:
+    ax.plot( times, hTimeDom1, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_1}$' )
 
 ax.set_ylim(ylim)
 
@@ -548,6 +558,8 @@ ax = plt.subplot(2,3,5)
 
 ax.plot( times[:len(hTimeDom2)-ind], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom2)-ind]), 'c-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_2}$')
 ax.plot( times[:len(hTimeDom2)-ind], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom2)-ind]), 'r-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_2}$')
+if not opts.hide_signal:
+    ax.plot( times, hTimeDom2, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_2}$' )
 
 ax.set_ylim(ylim)
 
