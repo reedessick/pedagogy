@@ -29,6 +29,9 @@ parser.add_option('-s', '--sampling-rate', default=1024, type='int', help='sampl
 
 parser.add_option('-S', '--SNR', default=10.0, type='float', help='requested SNR for the injection')
 
+parser.add_option('', '--theta', default=np.pi/4, type='float', help='the polar angle for triangulation')
+parser.add_option('', '--D-over-c', default=1, type='float', help='the triangulation baseline')
+
 parser.add_option('-f', '--freq', default=300.0, type='float', help='central frequency of the chirpedSineGaussian')
 parser.add_option('-F', '--freqDot', default=10.0, type='float', help='frequency derivative of the chirpedSineGaussian')
 parser.add_option('-t', '--tau', default=0.5, type='float', help='time constnat of the chirpedSineGaussian')
@@ -52,6 +55,42 @@ if N%2:
 
 #-------------------------------------------------
 
+if opts.verbose:
+    print "generating white noise (in the freq domain)"
+(freqs, wFreqDom1), (times, wTimeDom1) =  waveforms.whiteNoise( opts.duration, opts.sampling_rate )
+(freqs, wFreqDom2), (times, wTimeDom2) =  waveforms.whiteNoise( opts.duration, opts.sampling_rate )
+
+#-------------------------------------------------
+
+dt = opts.D_over_c * np.cos( opts.theta )
+to = max(opts.duration-3*opts.tau, opts.duration/2)
+
+if opts.verbose:
+    print "generating injection with to=%.3f"%(to)
+hTimeDom1 = waveforms.chirpSineGaussianT( times, 1.0, opts.freq, opts.freqDot, opts.tau, to )
+hFreqDom1 = waveforms.chirpSineGaussianF( freqs, 1.0, opts.freq, opts.freqDot, opts.tau, to )
+
+hTimeDom2 = waveforms.chirpSineGaussianT( times, 1.0, opts.freq, opts.freqDot, opts.tau, to-dt )
+hFreqDom2 = waveforms.chirpSineGaussianF( freqs, 1.0, opts.freq, opts.freqDot, opts.tau, to-dt )
+
+#-------------------------------------------------
+
+if opts.verbose:
+    print "computing optimal SNR and scaling injection"
+### for white-gaussian noise with unit-variance in the frequency domain
+snr = ( 2 * np.sum( hFreqDom1.real**2 + hFreqDom1.imag**2 + hFreqDom2.real**2 + hFreqDom2.imag**2 ) / opts.duration )**0.5
+
+scaling = opts.SNR/snr
+hTimeDom1 *= scaling
+hFreqDom1 *= scaling
+hTimeDom2 *= scaling
+hFreqDom2 *= scaling
+
+#-------------------------------------------------
+
+if opts.verbose:
+    print "compute logBSN as a function of theta"
+
 raise StandardError("WRITE ME")
 
 
@@ -60,6 +99,13 @@ raise StandardError("WRITE ME")
 
 
 
+'''
+Need to plot a sanity check figure with raw data, optimally shifted data, injected strain, reconstructed strain in optimally shifted data, likelihood as a function of time-shift, and skymap
+
+Need to figure out time-shifts based on number of frames
+    step through, slide data, bob's your uncle
+    we then build the "sanity check" figure iteratively so it is stepped through in time
+'''
 
 
 
@@ -68,35 +114,16 @@ raise StandardError("WRITE ME")
 
 
 
-if opts.verbose:
-    print "generating white noise (in the freq domain)"
-(freqs, wFreqDom), (times, wTimeDom) =  waveforms.whiteNoise( opts.duration, opts.sampling_rate )
 
-# if opts.verbose:
-#     print "generating white noise (in the time domain)"
-# timesT, wTimeDomT = waveforms.whiteNoiseT( opts.duration, opts.sampling_rate )
-# wFreqDomT = np.fft.fftshift( np.fft.fft( wTimeDomT ) )/opts.sampling_rate
 
-#-------------------------------------------------
 
-to = max(opts.duration-3*opts.tau, opts.duration/2)
-if opts.verbose:
-    print "generating injection with to=%.3f"%(to)
-hTimeDom = waveforms.chirpSineGaussianT( times, 1.0, opts.freq, opts.freqDot, opts.tau, to )
-hFreqDom = waveforms.chirpSineGaussianF( freqs, 1.0, opts.freq, opts.freqDot, opts.tau, to )
 
-#-------------------------------------------------
 
-if opts.verbose:
-    print "computing optimal SNR and scaling injection"
-### for white-gaussian noise with unit-variance in the frequency domain
-snr = ( 2 * np.sum( hFreqDom.real**2 + hFreqDom.imag**2 ) / opts.duration )**0.5
 
-scaling = opts.SNR/snr
-hTimeDom *= scaling
-hFreqDom *= scaling
 
-#-------------------------------------------------
+
+
+
 
 if opts.verbose:
     print "computing SNR(t)"
