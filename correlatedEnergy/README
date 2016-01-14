@@ -3,3 +3,4 @@ this is meant to demonstrate how shifting two data streams relative to one anoth
 
 also map the time shift into a polar angle -> localization?
 
+In this example we use a "chirped SineGuassian" waveform although it should be straightforward to extend this to anything defined in waveforms.py.

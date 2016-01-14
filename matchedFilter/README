@@ -3,3 +3,4 @@ this is a basic module meant to demonstrate (pedagogically) how matched filterin
 We inject a known waveform into white gaussian noise and demonstrate the convolution explicitly.
 This gives the explicit SNR(t) which we can demonstrate detection clearly.
 
+In this example, we use a "chirped SineGaussian" waveform, although it should be straightforward to extend this to any waveform defined within waveforms.py.
