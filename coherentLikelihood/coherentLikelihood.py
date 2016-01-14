@@ -3,7 +3,6 @@ usage = "coherentLikelihood.py [--options]"
 description = "builds figures to demonstrate a heuristic burst search"
 author = "Reed Essick (reed.essick@ligo.org)"
 
-
 #-------------------------------------------------
 
 import waveforms
@@ -27,13 +26,13 @@ parser.add_option('-v', '--verbose', default=False, action='store_true')
 parser.add_option('-T', '--duration', default=5.0, type='float', help='duration of the experiment')
 parser.add_option('-s', '--sampling-rate', default=1024, type='int', help='sampling rate of the experiment, should be a power of 2')
 
-parser.add_option('-S', '--SNR', default=10.0, type='float', help='requested SNR for the injection')
+parser.add_option('-S', '--SNR', default=25.0, type='float', help='requested SNR for the injection')
 
 parser.add_option('', '--theta', default=np.pi/4, type='float', help='the polar angle for triangulation')
-parser.add_option('', '--D-over-c', default=1, type='float', help='the triangulation baseline')
+parser.add_option('', '--D-over-c', default=1.5, type='float', help='the triangulation baseline')
 
-parser.add_option('-f', '--freq', default=300.0, type='float', help='central frequency of the chirpedSineGaussian')
-parser.add_option('-F', '--freqDot', default=10.0, type='float', help='frequency derivative of the chirpedSineGaussian')
+parser.add_option('-f', '--freq', default=10.0, type='float', help='central frequency of the chirpedSineGaussian')
+parser.add_option('-F', '--freqDot', default=8.0, type='float', help='frequency derivative of the chirpedSineGaussian')
 parser.add_option('-t', '--tau', default=0.5, type='float', help='time constnat of the chirpedSineGaussian')
 
 parser.add_option('', '--frames-per-sec', default=30, type='int', help='the number of frames per second of the movie')
@@ -63,15 +62,15 @@ if opts.verbose:
 #-------------------------------------------------
 
 dt = opts.D_over_c * np.cos( opts.theta )
-to = max(opts.duration-3*opts.tau, opts.duration/2)
+to = opts.duration/2
 
 if opts.verbose:
     print "generating injection with to=%.3f"%(to)
-hTimeDom1 = waveforms.chirpSineGaussianT( times, 1.0, opts.freq, opts.freqDot, opts.tau, to )
-hFreqDom1 = waveforms.chirpSineGaussianF( freqs, 1.0, opts.freq, opts.freqDot, opts.tau, to )
+hTimeDom1 = waveforms.chirpSineGaussianT( times, 1.0, opts.freq, opts.freqDot, opts.tau, to+dt/2 )
+hFreqDom1 = waveforms.chirpSineGaussianF( freqs, 1.0, opts.freq, opts.freqDot, opts.tau, to+dt/2 )
 
-hTimeDom2 = waveforms.chirpSineGaussianT( times, 1.0, opts.freq, opts.freqDot, opts.tau, to-dt )
-hFreqDom2 = waveforms.chirpSineGaussianF( freqs, 1.0, opts.freq, opts.freqDot, opts.tau, to-dt )
+hTimeDom2 = waveforms.chirpSineGaussianT( times, 1.0, opts.freq, opts.freqDot, opts.tau, to-dt/2 )
+hFreqDom2 = waveforms.chirpSineGaussianF( freqs, 1.0, opts.freq, opts.freqDot, opts.tau, to-dt/2 )
 
 #-------------------------------------------------
 
@@ -91,17 +90,138 @@ hFreqDom2 *= scaling
 if opts.verbose:
     print "compute logBSN as a function of theta"
 
+dataF1 = wFreqDom1 + hFreqDom1
+dataT1 = wTimeDom1 + hTimeDom1
+
+dataF2 = wFreqDom2 + hFreqDom2
+dataT2 = wTimeDom2 + hTimeDom2
+
+snr = np.fft.ifft( 2 * np.fft.ifftshift( dataF1 * np.conj(dataF2) ) ).real * opts.sampling_rate ### ifft normalizes the sum by 1/n = 1/(s*T) and we want to normalize by 1/T to approximate the integral
+SNR = snr**0.5
+
+#-------------------------------------------------
+
+if opts.verbose:
+    print "plotting sanity check of injection and noise"
+
+fig = plt.figure(figsize=(15,10))
+
+### IFO1 raw data
+ax = plt.subplot(2,3,1)
+
+ax.plot( times, dataT1, 'm-', linewidth=1, alpha=0.75, label='$\mathrm{noise_1+signal_1}$' )
+ax.plot( times-dt/2, dataT1, 'r-', linewidth=1, alpha=0.5, label='$\mathrm{shifted\ noise_1+signal_1}$' )
+
+ax.legend(loc='best')
+ax.xaxis.tick_top()
+ax.xaxis.set_label_position('top')
+ax.set_xlabel('$\mathrm{time}$')
+ax.set_ylabel('$d_1(t)$')
+
+ax.set_xlim(xmin=dt/2, xmax=opts.duration-dt/2)
+ylim = ax.get_ylim()
+
+### IFO1 strain data
+ax = plt.subplot(2,3,2)
+
+ax.plot( times, hTimeDom1, 'm-', linewidth=1, alpha=0.75, label='$\mathrm{signal_1}$' )
+ax.plot( times-dt/2, hTimeDom1, 'r-', linewidth=1, alpha=0.5, label='$\mathrm{shifted\ signal_1}$' )
+
+print "WARNING: need optimal reconstructed strain for IFO1!"
+
+ax.set_ylim(ylim)
+
+#ax.legend(loc='best')
+ax.xaxis.tick_top()
+ax.xaxis.set_label_position('top')
+ax.set_xlabel('$\mathrm{time}$')
+ax.yaxis.tick_right()
+ax.yaxis.set_label_position('right')
+plt.setp(ax.get_yticklabels(), visible=False)
+ax.set_ylabel('$h_1(t)$')
+
+ax.set_xlim(xmin=dt/2, xmax=opts.duration-dt/2)
+
+plt.annotate(s='', xy=(to+dt/2,np.min(hTimeDom1)), xytext=(to,np.min(hTimeDom1)), arrowprops=dict(arrowstyle='<-'))
+#plt.annotate(s='$\\tau$', xy=(to+dt/4,np.min(hTimeDom1)*1.1), xytext=(to+dt/4,np.min(hTimeDom1)*1.1) )
+
+ylim = ax.get_ylim()
+ax.plot( [to]*2, ylim, 'k--', alpha=0.5, linewidth=1 )
+ax.set_ylim(ylim)
+
+### IFO2 raw data
+ax = plt.subplot(2,3,4)
+
+ax.plot( times, dataT2, 'c-', linewidth=1, alpha=0.75, label='$\mathrm{noise_2+signal_2}$' )
+ax.plot( times+dt/2, dataT2, 'b-', linewidth=1, alpha=0.5, label='$\mathrm{shifted\ noise_2+signal_2}$' )
+
+ax.legend(loc='best')
+ax.set_xlabel('$\mathrm{time}$')
+ax.set_ylabel('$d_2(t)$')
+
+ax.set_xlim(xmin=dt/2, xmax=opts.duration-dt/2)
+
+ylim = ax.get_ylim()
+
+### IFO2 strain data
+ax = plt.subplot(2,3,5)
+
+ax.plot( times, hTimeDom2, 'c-', linewidth=1, alpha=0.75, label='$\mathrm{signal_2}$' )
+ax.plot( times+dt/2, hTimeDom2, 'b-', linewidth=1, alpha=0.5, label='$\mathrm{shifted\ signal_2}$' )
+
+print "WARNING: need optimal reconstructed strain for IFO2!"
+
+ax.set_ylim(ylim)
+
+#ax.legend(loc='best')
+ax.set_xlabel('$\mathrm{time}$')
+ax.yaxis.tick_right()
+ax.yaxis.set_label_position('right')
+plt.setp(ax.get_yticklabels(), visible=False)
+ax.set_ylabel('$h_2(t)$')
+
+ax.set_xlim(xmin=dt/2, xmax=opts.duration-dt/2)
+
+plt.annotate(s='', xy=(to-dt/2,np.max(hTimeDom2)), xytext=(to,np.max(hTimeDom2)), arrowprops=dict(arrowstyle='<-'))
+#plt.annotate(s='$\\tau$', xy=(to-dt/4,np.max(hTimeDom2)*1.1), xytext=(to-dt/4,np.max(hTimeDom2)*1.1) )
+
+ylim = ax.get_ylim()
+ax.plot( [to]*2, ylim, 'k--', alpha=0.5, linewidth=1 )
+ax.set_ylim(ylim)
+
+### ray-plot
+ax = plt.subplot(3,3,6)
+
+ax.plot( times, SNR, 'g-', linewidth=1, alpha=0.5, label='$\mathrm{freq-domain}$\n$\mathrm{computation}$' )
+
+ylim = ax.get_ylim()
+ax.plot( [dt]*2, ylim, 'k--', linewidth=1, alpha=0.5 )
+ax.set_ylim(ylim)
+
+#ax.legend(loc='best')
+ax.set_xlabel('$\\tau$')
+ax.yaxis.tick_right()
+ax.yaxis.set_label_position('right')
+ax.set_ylabel('$\\rho(\\tau)$')
+
+plt.subplots_adjust(hspace=0.05, wspace=0.05)
+
+figname = "sanityCheck%s.png"%(opts.tag)
+if opts.verbose:
+    print "    %s"%figname
+fig.savefig( figname )
+plt.close( fig )
+
+if opts.sanity_check:
+    import sys
+    sys.exit(0)
+
+#-------------------------------------------------
+
+
 raise StandardError("WRITE ME")
 
-
-
-
-
-
-
 '''
-Need to plot a sanity check figure with raw data, optimally shifted data, injected strain, reconstructed strain in optimally shifted data, likelihood as a function of time-shift, and skymap
-
 Need to figure out time-shifts based on number of frames
     step through, slide data, bob's your uncle
     we then build the "sanity check" figure iteratively so it is stepped through in time
