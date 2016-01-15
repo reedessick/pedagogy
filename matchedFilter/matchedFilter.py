@@ -38,7 +38,7 @@ parser.add_option('', '--num-frames', default=300, type='int', help='the total n
 parser.add_option('', '--hide-signal', default=False, action='store_true', help='do not show signal in fame*png figures')
 parser.add_option('', '--tag', default='', type='string' )
 parser.add_option('', '--dpi', default=200, type='int' )
-parser.add_option('', '--movie-type', default='mpeg', type='string')
+parser.add_option('', '--movie-type', default='mpg', type='string')
 
 parser.add_option('', '--sanity-check', default=False, action='store_true', help='stop after making sanity check plots')
 
