@@ -38,6 +38,7 @@ parser.add_option('', '--num-frames', default=300, type='int', help='the total n
 parser.add_option('', '--hide-signal', default=False, action='store_true', help='do not show signal in fame*png figures')
 parser.add_option('', '--tag', default='', type='string' )
 parser.add_option('', '--dpi', default=200, type='int' )
+parser.add_option('', '--movie-type', default='mpeg', type='string')
 
 parser.add_option('', '--sanity-check', default=False, action='store_true', help='stop after making sanity check plots')
 
@@ -347,7 +348,7 @@ plt.close( fig )
 
 #-------------------------------------------------
 
-cmd = "ffmpeg -r %d -i frame%s-%s04d.png matchedFilter%s.mp4"%(opts.frames_per_sec, opts.tag, "%", opts.tag)
+cmd = "ffmpeg -r %d -i frame%s-%s04d.png matchedFilter%s.%s"%(opts.frames_per_sec, opts.tag, "%", opts.tag, opts.movie_type)
 if opts.verbose:
     print "wrapping into a movie:\n\t%s"%(cmd)
 
