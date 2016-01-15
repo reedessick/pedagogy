@@ -39,6 +39,9 @@ parser.add_option('', '--frames-per-sec', default=30, type='int', help='the numb
 parser.add_option('', '--num-frames', default=200, type='int', help='the total number of frames in the movie')
 
 parser.add_option('', '--hide-signal', default=False, action='store_true', help='do not show signal in fame*png figures')
+parser.add_option('', '--hide-noisy-reconstruction', default=False, action='store_true', help='do not show the reconstructed signal which contains noise')
+parser.add_option('', '--hide-noiseless-reconstruction', default=False, action='store_true', help='do not show the reconstructed signal which contains only injections')
+
 parser.add_option('', '--tag', default='', type='string' )
 parser.add_option('', '--dpi', default=200, type='int' )
 parser.add_option('', '--movie-type', default='mpg', type='string')
@@ -273,8 +276,10 @@ ax.set_ylim(ylim)
 ### IFO1 strain data
 ax = plt.subplot(2,3,2)
 
-ax.plot( times, 0.5*(dataT1 + dataT2), 'm-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_1}$')
-ax.plot( times, 0.5*(hTimeDom1 + hTimeDom2), 'b-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_1}$')
+if not opts.hide_noisy_reconstruction:
+    ax.plot( times, 0.5*(dataT1 + dataT2), 'm-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_1}$')
+if not opts.hide_noiseless_reconstruction:
+    ax.plot( times, 0.5*(hTimeDom1 + hTimeDom2), 'b-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_1}$')
 if not opts.hide_signal:
     ax.plot( times, hTimeDom1, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_1}$' )
 
@@ -310,8 +315,10 @@ ax.set_ylim(ylim)
 ### IFO2 strain data
 ax = plt.subplot(2,3,5)
 
-ax.plot( times, 0.5*(dataT1 + dataT2), 'c-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_2}$')
-ax.plot( times, 0.5*(hTimeDom1 + hTimeDom2), 'r-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_2}$')
+if not opts.hide_noisy_reconstruction:
+    ax.plot( times, 0.5*(dataT1 + dataT2), 'c-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_2}$')
+if not opts.hide_noiseless_reconstruction:
+    ax.plot( times, 0.5*(hTimeDom1 + hTimeDom2), 'r-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_2}$')
 if not opts.hide_signal:
     ax.plot( times, hTimeDom2, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_2}$' )
 
@@ -391,8 +398,10 @@ while ind < N:
     ### IFO1 strain data
     ax = plt.subplot(2,3,2)
 
-    ax.plot( times[ind:], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom1)-ind]), 'm-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_1}$')
-    ax.plot( times[ind:], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom1)-ind]), 'b-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_1}$')
+    if not opts.hide_noisy_reconstruction:
+        ax.plot( times[ind:], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom1)-ind]), 'm-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_1}$')
+    if not opts.hide_noiseless_reconstruction:
+        ax.plot( times[ind:], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom1)-ind]), 'b-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_1}$')
     if not opts.hide_signal:
         ax.plot( times, hTimeDom1, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_1}$' )
 
@@ -431,8 +440,10 @@ while ind < N:
     ### IFO2 strain data
     ax = plt.subplot(2,3,5)
 
-    ax.plot( times[:len(hTimeDom2)-ind], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom2)-ind]), 'c-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_2}$')
-    ax.plot( times[:len(hTimeDom2)-ind], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom2)-ind]), 'r-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_2}$')
+    if not opts.hide_noisy_reconstruction:
+        ax.plot( times[:len(hTimeDom2)-ind], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom2)-ind]), 'c-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_2}$')
+    if not opts.hide_noiseless_reconstruction:
+        ax.plot( times[:len(hTimeDom2)-ind], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom2)-ind]), 'r-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_2}$')
     if not opts.hide_signal:
         ax.plot( times, hTimeDom2, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_2}$' )
 
@@ -518,8 +529,10 @@ ax.set_ylim(ylim)
 ### IFO1 strain data
 ax = plt.subplot(2,3,2)
 
-ax.plot( times[ind:], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom2)-ind]), 'm-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_1}$')
-ax.plot( times[ind:], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom2)-ind]), 'b-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_1}$')
+if not opts.hide_noisy_reconstruction:
+    ax.plot( times[ind:], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom2)-ind]), 'm-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_1}$')
+if not opts.hide_noiseless_reconstruction:
+    ax.plot( times[ind:], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom2)-ind]), 'b-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_1}$')
 if not opts.hide_signal:
     ax.plot( times, hTimeDom1, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_1}$' )
 
@@ -557,8 +570,10 @@ ax.set_ylim(ylim)
 ## IFO2 strain data
 ax = plt.subplot(2,3,5)
 
-ax.plot( times[:len(hTimeDom2)-ind], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom2)-ind]), 'c-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_2}$')
-ax.plot( times[:len(hTimeDom2)-ind], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom2)-ind]), 'r-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_2}$')
+if not opts.hide_noisy_reconstruction:
+    ax.plot( times[:len(hTimeDom2)-ind], 0.5*(dataT1[ind:] + dataT2[:len(hTimeDom2)-ind]), 'c-', linewidth=1, alpha=0.75, label='$\mathrm{reconstructed\ signal_2}$')
+if not opts.hide_noiseless_reconstruction:
+    ax.plot( times[:len(hTimeDom2)-ind], 0.5*(hTimeDom1[ind:] + hTimeDom2[:len(hTimeDom2)-ind]), 'r-', linewidth=1, alpha=0.90, label='$\mathrm{zero\ noise}$\n$\mathrm{reconstructed\ signal_2}$')
 if not opts.hide_signal:
     ax.plot( times, hTimeDom2, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{signal_2}$' )
 
