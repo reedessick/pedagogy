@@ -38,7 +38,7 @@ parser.add_option('', '--num-frames', default=300, type='int', help='the total n
 parser.add_option('', '--hide-signal', default=False, action='store_true', help='do not show signal in fame*png figures')
 parser.add_option('', '--tag', default='', type='string' )
 parser.add_option('', '--dpi', default=200, type='int' )
-parser.add_option('', '--movie-type', default='mpg', type='string')
+parser.add_option('', '--movie-type', default=[], action='append', type='string')
 
 parser.add_option('', '--sanity-check', default=False, action='store_true', help='stop after making sanity check plots')
 
@@ -50,6 +50,9 @@ if opts.tag:
 N = opts.duration*opts.sampling_rate
 if N%2:
     raise ValueError("must have an even number of sample points! %.3f*%.3f=%.3f"%(opts.duration, opts.sampling_rate, N))
+
+if not opts.movie_type:
+    opts.movie_type.append( 'mpg' )
 
 #-------------------------------------------------
 
@@ -348,8 +351,9 @@ plt.close( fig )
 
 #-------------------------------------------------
 
-cmd = "ffmpeg -r %d -i frame%s-%s04d.png matchedFilter%s.%s"%(opts.frames_per_sec, opts.tag, "%", opts.tag, opts.movie_type)
-if opts.verbose:
-    print "wrapping into a movie:\n\t%s"%(cmd)
+for movie_type in opts.movie_type:
+    cmd = "ffmpeg -r %d -i frame%s-%s04d.png matchedFilter%s.%s"%(opts.frames_per_sec, opts.tag, "%", opts.tag, movie_type)
+    if opts.verbose:
+        print "wrapping into a movie:\n\t%s"%(cmd)
 
-sp.Popen(cmd.split()).wait()
+    sp.Popen(cmd.split()).wait()
