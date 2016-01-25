@@ -26,14 +26,14 @@ parser.add_option('-v', '--verbose', default=False, action='store_true')
 parser.add_option('-T', '--duration', default=5.0, type='float', help='duration of the experiment')
 parser.add_option('-s', '--sampling-rate', default=1024, type='int', help='sampling rate of the experiment, should be a power of 2')
 
-parser.add_option('-S', '--SNR', default=10.0, type='float', help='requested SNR for the injection')
+parser.add_option('-S', '--SNR', default=5.0, type='float', help='requested SNR for the injection')
 
-parser.add_option('-f', '--freq', default=300.0, type='float', help='central frequency of the chirpedSineGaussian')
-parser.add_option('-F', '--freqDot', default=10.0, type='float', help='frequency derivative of the chirpedSineGaussian')
-parser.add_option('-t', '--tau', default=0.5, type='float', help='time constnat of the chirpedSineGaussian')
+parser.add_option('-f', '--freq', default=10.0, type='float', help='central frequency of the chirpedSineGaussian')
+parser.add_option('-F', '--freqDot', default=3.0, type='float', help='frequency derivative of the chirpedSineGaussian')
+parser.add_option('-t', '--tau', default=1.0, type='float', help='time constnat of the chirpedSineGaussian')
 
 parser.add_option('', '--frames-per-sec', default=30, type='int', help='the number of frames per second of the movie')
-parser.add_option('', '--num-frames', default=300, type='int', help='the total number of frames in the movie')
+parser.add_option('', '--num-frames', default=400, type='int', help='the total number of frames in the movie')
 
 parser.add_option('', '--hide-signal', default=False, action='store_true', help='do not show signal in fame*png figures')
 parser.add_option('', '--tag', default='', type='string' )
@@ -279,7 +279,7 @@ while ind < N:
     ax.plot( times, template, 'k-', linewidth=1, alpha=0.5, label='$\mathrm{template}$')
 
     ylim = ax.get_ylim()
-    ax.arrow( times[ind], 40, 0, -20, head_width=0.1, head_length=5.0, fc='k', ec='k' )
+    ax.arrow( times[ind], 40, 0, -20, head_width=0.2, head_length=5.0, fc='k', ec='k' )
 
     ax.set_xlabel('$\mathrm{time}$')
     ax.xaxis.tick_top()
