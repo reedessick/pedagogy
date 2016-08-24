@@ -171,7 +171,7 @@ plt.close(fig)
 if opts.verbose:
     print "plotting sanity check of SNR(t)"
 
-fig = plt.figure(figsize=(5,10))
+fig = plt.figure(figsize=(5,5))
 
 ### noise generated in freq-domain
 ax = plt.subplot(2,1,1)
@@ -181,7 +181,7 @@ ax.plot( times, hTimeDom + wTimeDom, 'r-', linewidth=1, alpha=0.5, label='$\math
 
 ax.plot( times, hTimeDom, 'k-', linewidth=1, alpha=0.75, label='$\mathrm{signal}$' )
 
-ax.legend(loc='best')
+#ax.legend(loc='best')
 ax.set_xlabel('$\mathrm{time}$')
 ax.xaxis.tick_top()
 ax.xaxis.set_label_position('top')
@@ -198,7 +198,7 @@ ax.plot( times, SNR,  'r-', linewidth=1, alpha=0.5, label='$\mathrm{freq-domain}
 #ax.plot( times, tsnr,  'm-', linewidth=1, alpha=0.5, label='$\mathrm{time-domain}$\n$\mathrm{computation}$' )
 #ax.plot( times, tsnrT, 'c-', linewidth=1, alpha=0.5, label='$\mathrm{time-domain}$\n$\mathrm{computation}$' )
 
-ax.legend(loc='best')
+#ax.legend(loc='best')
 ax.set_xlabel('$\mathrm{time}$')
 ax.set_ylabel('$\\rho(t)$')
 
@@ -208,7 +208,7 @@ ylim = ax.get_ylim()
 ax.plot([to]*2, ylim, 'k--', alpha=0.5 )
 ax.set_ylim(ylim)
 
-plt.subplots_adjust(hspace=0.05, wspace=0.05)
+plt.subplots_adjust(hspace=0.08, wspace=0.05)
 
 figname = "sanityCheckSNR%s.png"%(opts.tag)
 if opts.verbose:
