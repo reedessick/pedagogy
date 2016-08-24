@@ -5,8 +5,6 @@ author = "Reed Essick (reed.essick@ligo.org)"
 
 #-------------------------------------------------
 
-import waveforms
-
 import numpy as np
 
 import subprocess as sp
@@ -42,6 +40,8 @@ parser.add_option('', '--hx_max-strain', default=0.10, type='float', help='the a
 parser.add_option('', '--hx_frequency', default=0.5, type='float', help='the frequency of the oscillation in Hz')
 parser.add_option('', '--hx_phase', default=0, type='float', help='default is pi/4 relative to hp')
 
+parser.add_option('', '--annotate-center', default=False, action='store_true', help='draw a red square in the center of the axes')
+
 parser.add_option('', '--frames-per-sec', default=30, type='int', help='the number of frames per second of the movie')
 parser.add_option('', '--num-frames', default=400, type='int', help='the total number of frames in the movie')
 
@@ -63,7 +63,7 @@ if not opts.movie_type:
 #-------------------------------------------------
 
 if opts.verbose:
-    print "making movie frames"
+    print "setting up points"
 
 dt = 1./opts.frames_per_sec
 
@@ -92,8 +92,12 @@ elif opts.random:
 else:
     raise ValueError('bad options\n%s'%usage)
 
+#-------------------------------------------------
 
-xlim = np.array([-1.1, 1.1])*(1+(opts.hp_max_strain**2 + opts.hx_max_strain**2)**0.5)
+if opts.verbose:
+    print "making movie frames"
+
+xlim = np.array([-1.05, 1.05])*(1+(opts.hp_max_strain**2 + opts.hx_max_strain**2)**0.5)
 ylim = xlim
 
 while frameNo < opts.num_frames:
@@ -114,6 +118,9 @@ while frameNo < opts.num_frames:
 
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
+
+    if opts.annotate_center:
+        ax.plot( 0, 0, marker='s', markerfacecolor='none', markeredgecolor='r', markersize=8, linestyle='none' )
 
     figname = "frame%s-%04d.png"%(opts.tag, frameNo)
     if opts.verbose:
