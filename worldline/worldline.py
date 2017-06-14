@@ -97,7 +97,7 @@ m1 = cm.ScalarMappable(
         vmin=vmin,
         vmax=vmax,
     ),
-    cmap=plt.get_cmap('OrRd'),
+    cmap=plt.get_cmap('jet'),
 )
 m1.set_array(phis)
 
@@ -150,8 +150,9 @@ for ind, t in enumerate(times):
 #    ax.plot([0, opts.L, 0], [0, opts.L, 2*opts.L], 'k--')
 
     for jnd, phi in enumerate(phis):
+#        ax.plot(np.interp(times[:ind], Y[jnd,:], L), times[:ind], color=m2.to_rgba(phi))
+        ax.plot(np.interp(times[:ind], Y[jnd,:], L), times[:ind], color='grey')
         ax.plot(np.interp(times[:ind], X[jnd,:], L), times[:ind], color=m1.to_rgba(phi))
-        ax.plot(np.interp(times[:ind], Y[jnd,:], L), times[:ind], color=m2.to_rgba(phi))
 
     ### decorate
     ax.set_xlabel('r/L')
@@ -162,8 +163,8 @@ for ind, t in enumerate(times):
     ax.set_xlim(xmin=0, xmax=opts.L)
     ax.set_ylim(ymin=0, ymax=times[-1])
 
-    ax.text(0.1, opts.L, 'x-arm', color=m1.to_rgba(vmax), ha='center', va='bottom', fontsize=14)
-    ax.text(0.1, opts.L, 'y-arm', color=m2.to_rgba(vmax), ha='center', va='top', fontsize=14)
+#    ax.text(0.1, opts.L, 'x-arm', color=m1.to_rgba(vmax), ha='center', va='bottom', fontsize=14)
+#    ax.text(0.1, opts.L, 'y-arm', color=m2.to_rgba(vmax), ha='center', va='top', fontsize=14)
 
     ### save
     figname = "%s/frame%s-%04d.png"%(opts.output_dir, opts.tag, ind)
